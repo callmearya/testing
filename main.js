@@ -37,17 +37,17 @@ let remoteStream = new MediaStream();
 
 // HTML Elements
 const webcamVideo = document.getElementById('webcamVideo');
-const remoteVideo = document.getElementById('remoteVideo'); // Ensure you have this in your HTML
-const roomInput = document.getElementById('roomInput'); // Update to match your HTML
-const joinButton = document.getElementById('joinButton'); // Update to match your HTML
+const remoteVideo = document.getElementById('remoteVideo'); // Ensure this is correctly referenced
+const roomInput = document.getElementById('roomInput');
+const joinButton = document.getElementById('joinButton');
 const hangupButton = document.getElementById('hangupButton');
 
-// Automatically fill call ID if provided in the URL
+// Automatically fill room ID if provided in the URL
 const urlParams = new URLSearchParams(window.location.search);
-const roomIdFromUrl = urlParams.get('room'); // Change this if your URL parameter is different
+const roomIdFromUrl = urlParams.get('room');
 if (roomIdFromUrl) {
     roomInput.value = roomIdFromUrl;
-    joinRoom(roomIdFromUrl); // Automatically join the room
+    joinRoom(roomIdFromUrl);
 }
 
 // Function to join a room
@@ -60,16 +60,13 @@ async function joinRoom(roomId) {
     const answerCandidates = callDoc.collection('answerCandidates');
     const offerCandidates = callDoc.collection('offerCandidates');
 
-    // Get user media
     localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
     webcamVideo.srcObject = localStream;
     localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
 
     pc.ontrack = (event) => {
         remoteStream.addTrack(event.track);
-        // Ensure you have a remote video element to display the incoming stream
-        const remoteVideo = document.getElementById('remoteVideo'); // Add this in your HTML
-        remoteVideo.srcObject = remoteStream;
+        remoteVideo.srcObject = remoteStream; // Ensure the remote video stream is set
     };
 
     // Listen for remote ICE candidates

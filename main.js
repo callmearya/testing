@@ -1,23 +1,7 @@
-import './style.css';
-
-import firebase from 'firebase/app';
-import 'firebase/firestore';
-import 'firebase/database';
-
-const firebaseConfig = {
-  apiKey: "AIzaSyD1b7InCyJf03f82MBrFCXNd_1lir3nWrQ",
-  authDomain: "lil-testing.firebaseapp.com",
-  databaseURL: "https://lil-testing-default-rtdb.firebaseio.com",
-  projectId: "lil-testing",
-  storageBucket: "lil-testing.appspot.com",
-  messagingSenderId: "309006701748",
-  appId: "1:309006701748:web:2cfa73093e14fbcc2af3e1"
-};
-
-
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
+
 const firestore = firebase.firestore();
 const database = firebase.database();
 
@@ -36,35 +20,38 @@ let remoteStream = new MediaStream();
 
 // HTML Elements
 const webcamVideo = document.getElementById('webcamVideo');
-const remoteVideo = document.getElementById('remoteVideo');
-const callInput = document.getElementById('callInput');
-const joinRoomButton = document.getElementById('joinRoomButton');
+const remoteVideo = document.getElementById('remoteVideo'); // Ensure you have this in your HTML
+const roomInput = document.getElementById('roomInput'); // Update to match your HTML
+const joinButton = document.getElementById('joinButton'); // Update to match your HTML
 const hangupButton = document.getElementById('hangupButton');
 
 // Automatically fill call ID if provided in the URL
 const urlParams = new URLSearchParams(window.location.search);
-const roomIdFromUrl = urlParams.get('roomId');
+const roomIdFromUrl = urlParams.get('room'); // Change this if your URL parameter is different
 if (roomIdFromUrl) {
-    callInput.value = roomIdFromUrl;
-    joinRoom(roomIdFromUrl);
+    roomInput.value = roomIdFromUrl;
+    joinRoom(roomIdFromUrl); // Automatically join the room
 }
 
 // Function to join a room
 async function joinRoom(roomId) {
-    callInput.value = roomId;
-    joinRoomButton.textContent = "Connecting…";
-    joinRoomButton.disabled = true;
+    roomInput.value = roomId;
+    joinButton.textContent = "Connecting…";
+    joinButton.disabled = true;
 
     const callDoc = firestore.collection('calls').doc(roomId);
     const answerCandidates = callDoc.collection('answerCandidates');
     const offerCandidates = callDoc.collection('offerCandidates');
 
+    // Get user media
     localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
     webcamVideo.srcObject = localStream;
     localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
 
     pc.ontrack = (event) => {
         remoteStream.addTrack(event.track);
+        // Ensure you have a remote video element to display the incoming stream
+        const remoteVideo = document.getElementById('remoteVideo'); // Add this in your HTML
         remoteVideo.srcObject = remoteStream;
     };
 
@@ -104,6 +91,6 @@ hangupButton.onclick = () => {
     pc.close();
     localStream.getTracks().forEach((track) => track.stop());
     hangupButton.disabled = true;
-    joinRoomButton.disabled = false;
-    joinRoomButton.textContent = "Join Room";
+    joinButton.disabled = false;
+    joinButton.textContent = "Join Room";
 };
